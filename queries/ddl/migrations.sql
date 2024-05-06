@@ -16,6 +16,37 @@ CREATE TABLE IF NOT EXISTS users (
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Create 'access_tokens' table if it does not exist
+CREATE TABLE IF NOT EXISTS access_tokens (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT,
+  token VARCHAR(1024) NOT NULL,
+  is_valid BOOLEAN DEFAULT TRUE,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- Create 'sessions' table if it does not exist
+CREATE TABLE IF NOT EXISTS sessions (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  token_id INT,
+  device VARCHAR(255) NOT NULL,
+  browser VARCHAR(255) NOT NULL,
+  version VARCHAR(255) NOT NULL,
+  FOREIGN KEY (token_id) REFERENCES access_tokens(id)
+);
+
+-- Create 'notifications' table if it does not exist
+CREATE TABLE IF NOT EXISTS notifications (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT,
+  type VARCHAR(255) NOT NULL,
+  text VARCHAR(255) NOT NULL,
+  is_delivered BOOLEAN DEFAULT FALSE,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
 -- Create 'chats' table if it does not exist
 CREATE TABLE IF NOT EXISTS chats (
   id INT AUTO_INCREMENT PRIMARY KEY,
