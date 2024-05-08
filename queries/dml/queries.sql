@@ -128,3 +128,32 @@ DELETE FROM access_tokens WHERE user_id = <user_id>;
 
 -- Update Token Status on Logout
 UPDATE access_tokens SET is_valid = FALSE WHERE token = '<token_value>';
+
+-- Find users who have active sessions
+SELECT u.id, u.email
+FROM users u
+WHERE EXISTS (
+    SELECT 1
+    FROM sessions s
+    JOIN access_tokens at ON s.token_id = at.id
+    WHERE at.user_id = u.id AND at.is_valid = 1
+);
+
+-- Count the number of messages per chat
+SELECT c.id, c.name, COUNT(m.id) AS message_count
+FROM chats c
+LEFT JOIN messages m ON c.id = m.chat_id
+GROUP BY c.id, c.name;
+
+-- Users who have participated in multiple chats
+SELECT u.id, u.email
+FROM users u
+JOIN chat_participants cp ON u.id = cp.user_id
+GROUP BY u.id, u.email
+HAVING COUNT(DISTINCT cp.chat_id) > 1;
+
+-- Users with invalid access tokens
+SELECT u.id, u.email
+FROM users u
+JOIN access_tokens at ON u.id = at.user_id
+WHERE at.is_valid = 0;
